@@ -1,18 +1,10 @@
 ---
 - hosts: all
   become: true
+  vars:
+    host_user: ubuntu
 
   tasks:
-
-  - include_vars: vars.yml
-  - name: Find my public ip
-    uri: 
-      url: http://ifconfig.me/ip
-      return_content: yes
-    register: ip_response
-  
-  - name: Set IP value
-    set_fact: ip={{ ip_response.content }}
   
   - name: Ensure group “deploy” exists
     group:
@@ -20,10 +12,10 @@
       state: present
 
   - name: Add the user ‘{{ host_user }}’ with a specific uid and a primary group of ‘admin’
-    shell: adduser ubuntu deploy
+    shell: adduser {{ host_user }} deploy
 
   - name: recursively change owership of a directory
-    shell: chown -R ubuntu:deploy /srv
+    shell: chown -R {{ host_user }}:deploy /srv
 
   - name: Change file ownership, group and permissions
     shell: chmod 2775 "{{ project_root_dir }}"
